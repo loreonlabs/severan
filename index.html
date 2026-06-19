@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Severan | The Sovereign Risk Engine</title>
+    <meta name="description" content="Autonomous on-chain risk intelligence for Base network. Scan smart contracts with Venice AI. Security is sovereignty.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        severan: {
+                            parchment: '#F5F1E8',
+                            parchmentDark: '#E8E0D0',
+                            burgundy: '#7B2D3B',
+                            burgundyDark: '#5C1F2A',
+                            burgundyLight: '#9B4D5B',
+                            wine: '#8B3A4A',
+                            olive: '#4A5D23',
+                            oliveLight: '#6B7D3B',
+                            gold: '#C9A227',
+                            goldLight: '#E5C76B',
+                            sepia: '#3D2914',
+                            stone: '#8B8680',
+                            cream: '#FAF8F3'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Cinzel', 'Cinzel Decorative', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Parchment Texture */
+        body {
+            background-color: #F5F1E8;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+        }
+        
+        /* Column Pattern */
+        .column-pattern {
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(123, 45, 59, 0.03) 80px, rgba(123, 45, 59, 0.03) 84px);
+        }
+        
+        /* Roman Border */
+        .roman-border {
+            border: 2px solid #7B2D3B;
+            position: relative;
+        }
+        
+        .roman-border::before,
+        .roman-border::after {
+            content: '❦';
+            position: absolute;
+            color: #7B2D3B;
+            font-size: 20px;
+            background: #F5F1E8;
+            padding: 0 15px;
+            font-family: 'Cinzel', serif;
+        }
+        
+        .roman-border::before {
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .roman-border::after {
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%) rotate(180deg);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F5F1E8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #7B2D3B;
+            border-radius: 5px;
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(201, 162, 39, 0.3); }
+            50% { opacity: 0.8; box-shadow: 0 0 40px rgba(201, 162, 39, 0.5); }
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .animate-pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        /* Input Styling */
+        .severan-input {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid #7B2D3B;
+            transition: all 0.3s ease;
+        }
+        
+        .severan-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(123, 45, 59, 0.15);
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Button Hover */
+        .severan-btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .severan-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .severan-btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Risk Ring */
+        .risk-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .risk-ring-circle {
+            fill: none;
+            stroke-width: 12;
+            stroke-linecap: round;
+        }
+        
+        /* Loading Laurel */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .laurel-spinner {
+            animation: spin-slow 3s linear infinite;
+        }
+    </style>
+</head>
+<body class="column-pattern text-severan-sepia font-sans antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-severan-parchment/95 backdrop-blur-md border-b border-severan-burgundy/20">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">❦</span>
+                <span class="font-serif text-2xl font-bold text-severan-burgundy tracking-wider">SEVERAN</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
+                <a href="#mandate" class="hover:text-severan-burgundy transition-colors">THE MANDATE</a>
+                <a href="#process" class="hover:text-severan-burgundy transition-colors">THE PROCESS</a>
+                <a href="#arsenal" class="hover:text-severan-burgundy transition-colors">THE ARSENAL</a>
+                <a href="#vision" class="hover:text-severan-burgundy transition-colors">THE VISION</a>
+            </div>
+            <a href="#scanner" class="severan-btn bg-severan-burgundy text-white px-6 py-2 rounded font-serif text-sm tracking-wider hover:bg-severan-burgundyDark">
+                ENTER THE SENATE
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center pt-20 px-6">
+        <div class="text-center max-w-4xl mx-auto">
+            <div class="mb-8 animate-float">
+                <span class="text-6xl md:text-8xl">🏛</span>
+            </div>
+            
+            <h1 class="font-serif text-5xl md:text-7xl font-bold text-severan-burgundy mb-4 tracking-wider">
+                ❦ SEVERAN ❦
+            </h1>
+            
+            <h2 class="font-serif text-2xl md:text-3xl text-severan-gold mb-6 tracking-widest">
+                THE SOVEREIGN RISK ENGINE
+            </h2>
+            
+            <p class="font-serif text-lg md:text-xl text-severan-sepia/80 mb-2 italic">
+                Imperium Securitatis — Empire of Security
+            </p>
+            
+            <p class="text-severan-stone max-w-2xl mx-auto mb-10 leading-relaxed">
+                Autonomous on-chain risk intelligence for the Base network. 
+                Scan smart contracts. Uncover vulnerabilities. Secure your empire.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#scanner" class="severan-btn bg-severan-burgundy text-white px-8 py-4 rounded font-serif text-lg tracking-wider hover:bg-severan-burgundyDark animate-pulse-glow">
+                    ◆ ENTER THE SENATE ◆
+                </a>
+                <a href="#mandate" class="severan-btn border-2 border-severan-burgundy text-severan-burgundy px-8 py-4 rounded font-serif text-lg tracking-wider hover:bg-severan-burgundy hover:text-white">
+                    View The Archives →
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scanner Section -->
+    <section id="scanner" class="py-20 px-6">
+        <div class="max-w-3xl mx-auto">
+            <div class="roman-border bg-white/50 backdrop-blur-sm p-8 md:p-12 rounded-lg">
+                <div class="text-center mb-8">
+                    <h3 class="font-serif text-3xl font-bold text-severan-burgundy mb-2">❦ CONSULT THE ORACLE ❦</h3>
+                    <p class="text-severan-stone">Submit a Base network contract for imperial analysis</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-serif text-sm text-severan-sepia mb-2 tracking-wider">Enter Contract Address</label>
+                        <input type="text" id="contractInput" placeholder="0x..." 
+                               class="severan-input w-full px-6 py-4 rounded-lg font-mono text-severan-sepia placeholder-severan-stone/50">
+                    </div>
+                    
+                    <button onclick="startScan()" id="scanBtn"
+                            class="severan-btn w-full bg-severan-burgundy text-white py-4 rounded-lg font-serif text-lg tracking-wider hover:bg-severan-burgundyDark flex items-center justify-center gap-3">
+                        <span>◆</span>
+                        <span>CONSULT THE ORACLE</span>
+                        <span>◆</span>
+                    </button>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="loadingState" class="hidden mt-8 text-center">
+                    <div class="laurel-spinner text-6xl mb-4">🌿</div>
+                    <p class="font-serif text-severan-burgundy text-lg mb-2">Consulting the Oracle...</p>
+                    <p class="text-severan-stone text-sm">The augurs are examining the contract</p>
+                </div>
+                
+                <!-- Results State -->
+                <div id="resultState" class="hidden mt-8">
+                    <div class="text-center mb-6">
+                        <h4 class="font-serif text-2xl text-severan-burgundy">❦ EDICT OF ANALYSIS ❦</h4>
+                    </div>
+                    
+                    <div class="flex items-center justify-center mb-8">
+                        <div class="relative w-48 h-48">
+                            <svg class="risk-ring w-full h-full" viewBox="0 0 100 100">
+                                <circle class="risk-ring-circle" cx="50" cy="50" r="40" stroke="#E8E0D0"></circle>
+                                <circle class="risk-ring-circle" cx="50" cy="50" r="40" stroke="#7B2D3B" 
+                                        stroke-dasharray="251.2" stroke-dashoffset="62.8" id="riskCircle"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <span class="font-serif text-5xl font-bold text-severan-burgundy" id="riskScore">75</span>
+                                    <span class="block text-xs text-severan-stone mt-1">RISK SCORE</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-severan-burgundy/10 border border-severan-burgundy/30 rounded-lg p-4 mb-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-severan-burgundy">🚨</span>
+                            <span class="font-serif font-bold text-severan-burgundy">FERRUM — Iron Alert</span>
+                        </div>
+                        <p class="text-sm text-severan-sepia">Critical security failures detected. Deployment strongly discouraged.</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 p-3 bg-white/50 rounded border-l-4 border-severan-burgundy">
+                            <span class="text-severan-burgundy font-bold">⚔</span>
+                            <div>
+                                <p class="font-serif text-sm font-bold text-severan-sepia">Reentrancy Vulnerability</p>
+                                <p class="text-xs text-severan-stone">External call detected before state update in withdraw() function</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-white/50 rounded border-l-4 border-severan-gold">
+                            <span class="text-severan-gold font-bold">⚠</span>
+                            <div>
+                                <p class="font-serif text-sm font-bold text-severan-sepia">Centralized Ownership</p>
+                                <p class="text-xs text-severan-stone">Single owner has unlimited minting privileges</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Mandate -->
+    <section id="mandate" class="py-20 px-6 bg-severan-parchmentDark/30">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-serif text-4xl font-bold text-severan-burgundy mb-4">❦ THE MANDATE ❦</h2>
+                <p class="text-xl text-severan-stone">Why Sovereigns Choose Severan</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="roman-border bg-white/40 p-8 rounded-lg text-center hover:bg-white/60 transition-all hover:transform hover:-translate-y-2">
+                    <div class="text-5xl mb-4">⚔</div>
+                    <h3 class="font-serif text-xl font-bold text-severan-burgundy mb-3">THE ORACLE'S WISDOM</h3>
+                    <p class="text-sm text-severan-sepia/80 mb-2 font-bold text-severan-gold">Venice AI Integration</p>
+                    <p class="text-severan-stone text-sm leading-relaxed">
+                        Uncompromised, unbiased analysis powered by Venice AI. 
+                        No censorship. No gatekeeping. Pure intelligence.
+                    </p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="roman-border bg-white/40 p-8 rounded-lg text-center hover:bg-white/60 transition-all hover:transform hover:-translate-y-2">
+                    <div class="text-5xl mb-4">🏛</div>
+                    <h3 class="font-serif text-xl font-bold text-severan-burgundy mb-3">BUILT FOR THE EMPIRE</h3>
+                    <p class="text-sm text-severan-sepia/80 mb-2 font-bold text-severan-gold">Base Network Native</p>
+                    <p class="text-severan-stone text-sm leading-relaxed">
+                        Deployed on Base L2. Optimized for the ecosystem. 
+                        Scanning the chain with imperial precision.
+                    </p>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="roman-border bg-white/40 p-8 rounded-lg text-center hover:bg-white/60 transition-all hover:transform hover:-translate-y-2">
+                    <div class="text-5xl mb-4">🌿</div>
+                    <h3 class="font-serif text-xl font-bold text-severan-burgundy mb-3">EVER-VIGILANT</h3>
+                    <p class="text-sm text-severan-sepia/80 mb-2 font-bold text-severan-gold">24/7 Risk Monitoring</p>
+                    <p class="text-severan-stone text-sm leading-relaxed">
+                        The engine never sleeps. Continuous scanning. 
+                        Real-time threat detection across the realm.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Process -->
+    <section id="process" class="py-20 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-serif text-4xl font-bold text-severan-burgundy mb-4">❦ THE PROCESS ❦</h2>
+                <p class="text-xl text-severan-stone italic">Via Securitatis — The Path of Security</p>
+            </div>
+            
+            <div class="space-y-12">
+                <!-- Step 1 -->
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="md:w-1/3 text-center md:text-right">
+                        <span class="font-serif text-6xl font-bold text-severan-gold/30">I</span>
+                        <h3 class="font-serif text-2xl font-bold text-severan-burgundy mt-2">INVOCATION</h3>
+                        <p class="text-severan-gold font-bold text-sm tracking-wider mt-1">SUBMIT CONTRACT</p>
+                    </div>
+                    <div class="md:w-2/3 roman-border bg-white/40 p-6 rounded-lg">
+                        <p class="text-severan-stone leading-relaxed">
+                            Enter the smart contract address on Base. Our fetchers retrieve the source code 
+                            from the chain, preparing it for imperial examination.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="md:w-1/3 text-center md:text-right">
+                        <span class="font-serif text-6xl font-bold text-severan-gold/30">II</span>
+                        <h3 class="font-serif text-2xl font-bold text-severan-burgundy mt-2">DIVINATION</h3>
+                        <p class="text-severan-gold font-bold text-sm tracking-wider mt-1">AI ANALYSIS</p>
+                    </div>
+                    <div class="md:w-2/3 roman-border bg-white/40 p-6 rounded-lg">
+                        <p class="text-severan-stone leading-relaxed">
+                            Venice AI examines every line. Detecting reentrancy, overflows, centralization risks, 
+                            and protocol failures with the wisdom of a thousand augurs.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="md:w-1/3 text-center md:text-right">
+                        <span class="font-serif text-6xl font-bold text-severan-gold/30">III</span>
+                        <h3 class="font-serif text-2xl font-bold text-severan-burgundy mt-2">DECREE</h3>
+                        <p class="text-severan-gold font-bold text-sm tracking-wider mt-1">RISK ASSESSMENT</p>
+                    </div>
+                    <div class="md:w-2/3 roman-border bg-white/40 p-6 rounded-lg">
+                        <p class="text-severan-stone leading-relaxed">
+                            Receive your Imperium Score. Critical findings prioritized. 
+                            Actionable recommendations for your legion of developers.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Arsenal -->
+    <section id="arsenal" class="py-20 px-6 bg-severan-parchmentDark/30">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-serif text-4xl font-bold text-severan-burgundy mb-4">❦ THE LEGION'S ARSENAL ❦</h2>
+                <p class="text-xl text-severan-stone">Capabilities of the Risk Engine</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white/40 p-6 rounded-lg border-l-4 border-severan-burgundy">
+                    <h3 class="font-serif text-lg font-bold text-severan-burgundy mb-2">🛡 Reentrancy Detection</h3>
+                    <p class="text-severan-stone text-sm leading-relaxed">
+                        Identify recursive call vulnerabilities before they become exploits. 
+                        The engine traces external calls with senator-level scrutiny.
+                    </p>
+                </div>
+                
+                <div class="bg-white/40 p-6 rounded-lg border-l-4 border-severan-burgundy">
+                    <h3 class="font-serif text-lg font-bold text-severan-burgundy mb-2">⚖ Centralization Risk Analysis</h3>
+                    <p class="text-severan-stone text-sm leading-relaxed">
+                        Uncover owner privileges, upgrade risks, and single points of failure. 
+                        True sovereignty requires distributed power.
+                    </p>
+                </div>
+                
+                <div class="bg-white/40 p-6 rounded-lg border-l-4 border-severan-burgundy">
+                    <h3 class="font-serif text-lg font-bold text-severan-burgundy mb-2">📜 Protocol Failure Modes</h3>
+                    <p class="text-severan-stone text-sm leading-relaxed">
+                        Economic attack vectors. Flash loan vulnerabilities. Oracle manipulation. 
+                        Every threat catalogued in the imperial archives.
+                    </p>
+                </div>
+                
+                <div class="bg-white/40 p-6 rounded-lg border-l-4 border-severan-burgundy">
+                    <h3 class="font-serif text-lg font-bold text-severan-burgundy mb-2">🎖 Code Quality Assessment</h3>
+                    <p class="text-severan-stone text-sm leading-relaxed">
+                        Compiler warnings. Deprecated patterns. Missing events. 
+                        The standards of Rome applied to Solidity.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Imperium Score -->
+    <section class="py-20 px-6">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="font-serif text-4xl font-bold text-severan-burgundy mb-4">❦ THE IMPERIUM SCORE ❦</h2>
+                <p class="text-xl text-severan-stone">Understanding Your Security Rating</p>
+            </div>
+            
+            <div class="grid sm:grid-cols-2 gap-6">
+                <div class="roman-border bg-gradient-to-br from-green-50 to-green-100/50 p-6 rounded-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-2xl">🌿</span>
+                        <span class="font-serif font-bold text-green-800">AUREUS — Golden</span>
+                    </div>
+                    <p class="text-sm text-severan-stone">Score: 0-25</p>
+                    <p class="text-sm text-severan-sepia mt-2">Exemplary security. The Senate approves. Proceed with confidence.</p>
+                </div>
+                
+                <div class="roman-border bg-gradient-to-br from-yellow-50 to-yellow-100/50 p-6 rounded-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-2xl">⚠</span>
+                        <span class="font-serif font-bold text-yellow-800">ARGENTUM — Silver</span>
+                    </div>
+                    <p class="text-sm text-severan-stone">Score: 26-50</p>
+                    <p class="text-sm text-severan-sepia mt-2">Minor issues. Review recommended before deployment.</p>
+                </div>
+                
+                <div class="roman-border bg-gradient-to-br from-orange-50 to-orange-100/50 p-6 rounded-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-2xl">⚔</span>
+                        <span class="font-serif font-bold text-orange-800">AER — Bronze</span>
+                    </div>
+                    <p class="text-sm text-severan-stone">Score: 51-75</p>
+                    <p class="text-sm text-severan-sepia mt-2">Significant vulnerabilities. Immediate attention required.</p>
+                </div>
+                
+                <div class="roman-border bg-gradient-to-br from-red-50 to-red-100/50 p-6 rounded-lg">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-2xl">🚨</span>
+                        <span class="font-serif font-bold text-red-800">FERRUM — Iron</span>
+                    </div>
+                    <p class="text-sm text-severan-stone">Score: 76-100</p>
+                    <p class="text-sm text-severan-sepia mt-2">Critical failures. Deployment strongly discouraged.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Vision -->
+    <section id="vision" class="py-20 px-6 bg-severan-burgundy text-white">
+        <div class="max-w-3xl mx-auto text-center">
+            <h2 class="font-serif text-4xl font-bold mb-6">❦ THE EMPEROR'S VISION ❦</h2>
+            
+            <p class="text-xl font-serif text-severan-goldLight mb-6 italic">
+                "In the age of decentralized finance, security is sovereignty."
+            </p>
+            
+            <p class="text-severan-parchment/90 leading-relaxed mb-6">
+                Severan draws its name from the Severan dynasty — rulers who understood 
+                that true power comes from stability, wisdom, and unwavering vigilance.
+            </p>
+            
+            <p class="text-severan-parchment/90 leading-relaxed mb-8">
+                We believe every protocol deserves imperial-grade security analysis. 
+                No gatekeepers. No paywalls for basic protection. Just pure, 
+                uncensored intelligence powered by Venice AI.
+            </p>
+            
+            <p class="font-serif text-lg text-severan-gold tracking-wider">
+                Built on Base. Secured by Severan. Ruled by you.
+            </p>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="py-16 px-6 bg-severan-parchmentDark/50">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-12">
+                <h3 class="font-serif text-2xl text-severan-burgundy">❦ THE IMPERIAL RECORDS ❦</h3>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="font-serif text-4xl font-bold text-severan-burgundy">⚔</div>
+                    <div class="text-3xl font-bold text-severan-sepia mt-2">10K+</div>
+                    <div class="text-sm text-severan-stone">Contracts Analyzed</div>
+                </div>
+                <div>
+                    <div class="font-serif text-4xl font-bold text-severan-burgundy">🌿</div>
+                    <div class="text-3xl font-bold text-severan-sepia mt-2">500+</div>
+                    <div class="text-sm text-severan-stone">Critical Vulnerabilities</div>
+                </div>
+                <div>
+                    <div class="font-serif text-4xl font-bold text-severan-burgundy">🏛</div>
+                    <div class="text-3xl font-bold text-severan-sepia mt-2">$2B+</div>
+                    <div class="text-sm text-severan-stone">TVL Protected</div>
+                </div>
+                <div>
+                    <div class="font-serif text-4xl font-bold text-severan-burgundy">⚡</div>
+                    <div class="text-3xl font-bold text-severan-sepia mt-2">24/7</div>
+                    <div class="text-sm text-severan-stone">Vigilance Maintained</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-20 px-6">
+        <div class="max-w-3xl mx-auto text-center">
+            <h2 class="font-serif text-4xl font-bold text-severan-burgundy mb-4">❦ JOIN THE EMPIRE ❦</h2>
+            <p class="text-xl text-severan-stone mb-8">
+                Secure your protocols. Build with confidence. 
+                Rule your corner of the blockchain.
+            </p>
+            <a href="#scanner" class="severan-btn inline-block bg-severan-burgundy text-white px-10 py-4 rounded-lg font-serif text-lg tracking-wider hover:bg-severan-burgundyDark animate-pulse-glow">
+                ◆ BEGIN YOUR REIGN ◆
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-severan-sepia text-severan-parchment py-12 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h4 class="font-serif font-bold text-severan-gold mb-4">The Senate</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">About</a></li>
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">Team</a></li>
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-serif font-bold text-severan-gold mb-4">The Archives</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">Documentation</a></li>
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">API Reference</a></li>
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">GitHub</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-serif font-bold text-severan-gold mb-4">The Edicts</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">Research</a></li>
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">Changelog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-serif font-bold text-severan-gold mb-4">The Forum</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">Twitter/X</a></li>
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">Discord</a></li>
+                        <li><a href="#" class="hover:text-severan-gold transition-colors">Telegram</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-severan-parchment/20 pt-8 text-center">
+                <p class="font-serif text-severan-gold text-lg mb-2">❦ MMXXVI SEVERAN ❦</p>
+                <p class="text-sm text-severan-parchment/60">The Sovereign Risk Engine</p>
+                <p class="text-xs text-severan-parchment/40 mt-4">
+                    Built with imperium on Base. Secured by Venice AI.
+                </p>
+                <p class="font-serif text-severan-gold/60 text-sm mt-4 italic">
+                    "Security is Sovereignty"
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        function startScan() {
+            const input = document.getElementById('contractInput');
+            const loading = document.getElementById('loadingState');
+            const results = document.getElementById('resultState');
+            const btn = document.getElementById('scanBtn');
+            
+            if (!input.value || !input.value.startsWith('0x')) {
+                alert('Please enter a valid Base network address starting with 0x');
+                return;
+            }
+            
+            // Show loading
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-spin">🌿</span> Consulting...';
+            
+            // Simulate scan (3 seconds)
+            setTimeout(() => {
+                loading.classList.add('hidden');
+                results.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<span>◆</span><span>CONSULT THE ORACLE</span><span>◆</span>';
+                
+                // Animate risk circle
+                setTimeout(() => {
+                    document.getElementById('riskCircle').style.strokeDashoffset = '62.8';
+                }, 100);
+            }, 3000);
+        }
+        
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
